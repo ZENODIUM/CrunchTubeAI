@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icon.ico') }}">
+    <title>Analysis Result</title>
+    <style>
+        /* General body styling */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+            justify-content: center;
+            align-items: center;
+          
+        }
+
+        /* Emerald green light effect at the top */
+        body::before {
+    content: '';
+    position: absolute;
+    top: -100px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px; 
+    height: 500px; 
+    background-color: #50C878; 
+    filter: blur(150px); 
+    z-index: -1; 
+    animation: waveringLight 3s infinite ease-in-out; /* Add animation */
+}
+
+/* Keyframes for the wavering effect */
+@keyframes waveringLight {
+    0%, 100% {
+        opacity: 0.6; /* Slightly dim */
+        filter: blur(140px); /* Less intense glow */
+    }
+    50% {
+        opacity: 1; /* Fully bright */
+        filter: blur(160px); /* More intense glow */
+    }
+}
+
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto; /* Center horizontally */
+            padding: 20px;
+            text-align: left; /* Optional: Align text to the left */
+            background-color: #1a1a1a; /* Slightly lighter background */
+            border-radius: 12px;
+            box-shadow: 0 0 15px #50C878;
+        }
+
+        /* Heading styling */
+        h1 {
+            font-size: 2rem;
+            color:#ffffff;
+            margin-top: 40px;
+    
+        }
+
+        h2 {
+            color:#50C878;
+            font-size: 1.5rem;
+            margin-top: 20px;
+    
+        }
+
+        ul {
+
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        /* Button styling */
+        button {
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    color: #50C878; /* Emerald green text */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #50C878; /* Emerald green outline */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #50C878; /* Fill with emerald green on hover */
+    color: black; /* Change text color to black */
+    box-shadow: 0 0 10px #50C878; /* Glow effect on hover */
+}
+
+        a:link {
+    color: #50C878; /* Emerald green */
+    text-decoration: none; /* Remove underline */
+}
+
+/* Visited link color */
+a:visited {
+    color: #45b468; /* Slightly darker emerald green */
+    text-decoration: none;
+}
+
+
+.chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+
+        header {
+    display: flex;
+    align-items: center; /* Vertically align items (logo, title, and button) */
+    justify-content: space-between; /* Space between left (logo + title) and right (button) */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0); /* Transparent background */
+}
+
+/* Left section (logo and title) */
+.header-left {
+    display: flex;
+    align-items: center; /* Align logo and title vertically */
+}
+
+/* Logo styling with increased size */
+header img {
+    width: 80px; /* Logo width */
+    height: 80px; /* Logo height */
+    margin-right: 15px; /* Space between logo and title */
+}
+
+/* Header text styling */
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: white;
+    text-align: left; /* Ensure text aligns to the left */
+}
+
+
+.popup {
+    visibility: hidden; /* Hidden but still in layout */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: rgba(29, 29, 29); /* Translucent dark background */
+    color: rgb(255, 255, 255); /* White text for readability */
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px #50C878;
+    opacity: 0; /* Start with full transparency */
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; 
+    z-index: 3;/* Smooth fade-in effect */
+}
+
+/* When the popup is visible */
+.popup.show {
+    visibility: visible; /* Make it visible */
+    opacity: 1; /* Fully opaque */
+}
+
+
+
+        .popup h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .popup p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+     .popup button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #50C878; /* Emerald green text */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #50C878; /* Emerald green outline */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.popup button:hover {
+    background-color: #50C878; /* Fill with emerald green on hover */
+    color: black; /* Change text color to black */
+    box-shadow: 0 0 10px #50C878; /* Glow effect on hover */
+}
+
+
+.spacing {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+    </style>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            
+            startOnLoad: true,
+            theme: 'forest', // Options can be 'forest', 'dark', etc.
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <img src="/static/ctube_logo.png" alt="CrunchTube Logo">
+            <h1>CrunchTube AI</h1>
+        
+        </div>
+        <a style="font-size: 1.5rem;color: white;text-decoration: none;"href="javascript:void(0);" class="info-link" onclick="showPopup()">Info</a>
+    </header>
+
+
+    <div class="popup" id="infoPopup">
+        <h2>Info</h2>
+        <p>1. Paste the YouTube link of an educational video in the input bar.</p>
+        <p>2. Click "Analyze Video" to generate a summary of the video.</p>
+        <p>3. Ensure the video is publicly accessible on YouTube.</p>
+        <p>4. We get a summary by analyzing the video using the Gemini API.</p>
+        <p>5. All diagrams/visual elements in the video are extracted by their coordinates.</p>
+        <p>6. Questions and answers are generated based on the extracted images.</p>
+        <p>7. Get additional study links for further learning.</p>
+        <p>8. Displays a topic hardness vs time graph to identify which times have the hardest topics.</p>
+        <p>9. Download a cheat sheet generated by Python for quick reference.</p>
+        <p>10. See comment analysis of the video fetched using the YouTube API to identify any mistakes in the video.</p>
+        <p>11. Listen to an audio summary of the video with a button click.</p>
+        <p>12. View a flowchart of topics displayed using Mermaid.js for better visualization.</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    
+    
+    <h1 style="font-size: 3rem;">Analysis Result</h1>
+    <video id="videoPlayer" width="640" height="360" controls>
+        <source src="{{ video_path }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Mermaid.js Flowchart -->
+    <pre class="mermaid">
+
+        %%{
+            init: {
+              'themeVariables': {
+                'lineColor': 'white'
+              }
+            }
+          }%%
+        
+flowchart TD
+    {% for item in data %}
+        {{ item.Topic | replace(" ", "_") }}["{{ item.Topic }}"]
+        {% for subtopic in item.Subtopics %}
+            {{ item.Topic | replace(" ", "_") }} --> {{ subtopic.Subtopic | replace(" ", "_") }}["{{ subtopic.Subtopic }}"]
+        {% endfor %}
+    {% endfor %}
+    </pre>
+
+    <div class="content-container">
+    <h1>Summary :</h1>
+
+    <!-- Analysis Details -->
+    {% for item in data %}
+    <h2>{{ item.Topic }}</h2>
+    <ul>
+        {% for subtopic in item.Subtopics %}
+        <li>
+            <strong style="color:#50C878;">{{ subtopic.Subtopic }}</strong>: {{ subtopic.Content }}
+            <div class="spacing">
+            <a href="#" onclick="seekTo('{{ subtopic.Timestamp }}')">Timestamp: {{ subtopic.Timestamp }}</a>
+            </div>
+
+            <div class="spacing">
+            Content:
+                {{ subtopic.DetailedContent | replace("[", " ") | replace("]", " ") }}
+
+            </div>
+                {% if subtopic.cropped_path %}
+                    <br><img src="{{ subtopic.cropped_path }}" alt="Cropped Image">
+                {% endif %}
+            
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+
+    <br>
+
+    <!-- Questions Section -->
+    {% for item in data %}
+    <h2>Questions :</h2>
+    {% for subtopic in item.Subtopics %}
+
+    {% if subtopic.TimestampImage %}
+    Subtopic: {{ subtopic.Subtopic }}
+    <li>
+        <a href="#" onclick="seekTo('{{ subtopic.TimestampImage }}')">Timestamp of Image:
+                {{ subtopic.TimestampImage }}</a>
+
+        {% if subtopic.Question %}
+  
+        <ol>
+            {% for question in subtopic.Question %}
+                <li>{{ question }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+    </li>
+    {% endif %}
+    {% endfor %}
+{% endfor %}
+
+<br>
+
+<!-- Answers Section -->
+{% for item in data %}
+<h2>Answers :</h2>
+{% for subtopic in item.Subtopics %}
+
+{% if subtopic.Answer %}
+Subtopic: {{ subtopic.Subtopic }}
+
+<ol>
+    {% for Answer in subtopic.Answer %}
+    <li>{{ Answer }}</li>
+    {% endfor %}
+</ol>
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+<h2>Comment Analysis :</h2>
+<p>{{ content_comment }}</p>
+<p>{{ caveats }}</p>
+
+
+<br>
+
+<h2>Additonal Resources :</h2>
+<ul>
+    {% for item in content_list %}
+        <li>
+            <strong>{{ item.title }}</strong><br>
+            <a href="{{ item.link }}" target="_blank">{{ item.link }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+
+</div>
+
+
+<div class="chart-container">
+    <canvas id="difficultyChart" width="800" height="400"></canvas>
+</div>
+
+
+<a href="static/pdfs/cheat_sheet.pdf" download="cheat_sheet.pdf" style="margin-right: 20px;">
+    <button>Download Cheat Sheet </button>
+</a>
+
+<a href="{{ url_for('index') }}" style="margin-right: 20px;">
+    <button>Analyze Another Video </button>
+</a>
+   
+<script>
+        const data1 = {{ data|tojson }}; 
+        const timestamps = [];
+        const difficulties = [];
+        const difficultyLevels = { easy: 1, medium: 2, hard: 3 }; // Map difficulty to numeric values
+
+        data1.forEach(topic => {
+            topic.Subtopics.forEach(subtopic => {
+                timestamps.push(subtopic.Timestamp);
+                difficulties.push(difficultyLevels[subtopic.Difficulty]);
+            });
+        });
+
+        // Chart.js Configuration
+        const ctx = document.getElementById('difficultyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps, // X-axis (timestamps)
+                datasets: [{
+                    label: 'Difficulty Level',
+                    data: difficulties, // Y-axis (difficulty levels as numeric values)
+                    borderColor: 'green', // Line color
+                    backgroundColor: 'rgba(0, 255, 0, 0.2)', // Optional fill under the line
+                    borderWidth: 2,
+                    pointBackgroundColor: 'green', // Point color
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    x: {
+                        ticks: { color: 'white' }, // White X-axis labels
+                        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // Light white grid lines
+                        title: { display: true, text: 'Timestamp', color: 'white' } // X-axis title
+                    },
+                    y: {
+                        ticks: {
+                            color: 'white',
+                            callback: function(value) { // Map numeric values back to difficulty labels
+                                const labels = ['easy', 'medium', 'hard'];
+                                return labels[value - 1];
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // Light white grid lines
+                        title: { display: true, text: 'Difficulty', color: 'white' }, // Y-axis title
+                        min: 1,
+                        max: 3,
+                        beginAtZero: false
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' } // White legend text
+                    }
+                }
+            }
+        });
+    </script>
+
+
+<script>
+function seekTo(timestamp) {
+    const parts = timestamp.split(':');
+    const seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    
+    const video = document.getElementById('videoPlayer');
+    video.currentTime = seconds;
+
+    video.play();
+}
+</script>
+
+
+
+<audio id="audioPlayer" src="{{ url_for('static', filename='audio/output.mp3') }}"></audio>
+
+    <!-- Button to Play Audio -->
+    <button id="playButton">
+        Play Audio 
+    </button>
+
+    <script>
+        // Get references to the button and audio element
+        const playButton = document.getElementById('playButton');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Add click event listener to the button
+        playButton.addEventListener('click', function() {
+            audioPlayer.play(); // Play the audio
+        });
+    </script>
+
+
+<script>
+    // Function to show the popup with a fade-in effect
+    function showPopup() {
+        const popup = document.getElementById('infoPopup');
+        popup.classList.add('show'); // Add the 'show' class to make it visible and apply fade-in
+    }
+    
+    // Function to close the popup
+    function closePopup() {
+        const popup = document.getElementById('infoPopup');
+        popup.classList.remove('show'); // Remove the 'show' class to hide it
+    }
+    
+        </script>
+
+<br>
+<br>
+<br>
+
+</body>
+</html>

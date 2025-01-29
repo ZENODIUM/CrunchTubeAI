@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icon.ico') }}">
+    <title>Video Analyzer</title>
+    <style>
+        /* General body styling */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            text-align: center;
+        }
+
+        /* Header styling with transparent background */
+       /* Header styling with transparent background */
+header {
+    display: flex;
+    align-items: center; /* Vertically align items (logo, title, and button) */
+    justify-content: space-between; /* Space between left (logo + title) and right (button) */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0); /* Transparent background */
+}
+
+/* Left section (logo and title) */
+.header-left {
+    display: flex;
+    align-items: center; /* Align logo and title vertically */
+}
+
+/* Logo styling with increased size */
+header img {
+    width: 80px; /* Logo width */
+    height: 80px; /* Logo height */
+    margin-right: 15px; /* Space between logo and title */
+}
+
+/* Header text styling */
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: white;
+    text-align: left; /* Ensure text aligns to the left */
+}
+
+/* Info button styling */
+.info-button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: white;
+    background-color: #50C878; /* Emerald green background */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.info-button:hover {
+    background-color: #45b468; /* Darker emerald green on hover */
+    box-shadow: 0 0 10px #50C878; /* Glow effect on hover */
+}
+
+        /* Center content styling */
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+            height: 80vh; /* Center content vertically within viewport */
+        }
+
+        /* Input field styling */
+        input[type="url"] {
+            width: 90%; /* Make the paste link bar longer */
+            max-width: 900px; /* Limit maximum width for larger screens */
+            height: 30%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            outline: none;
+            background-color: #2a2a2a; /* Dark grey background */
+            color: white; /* White text color */
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            margin: 0 auto; /* Center the input field horizontally */
+        }
+
+        input[type="url"]:focus {
+            border-color: #50C878; /* Emerald green border */
+            box-shadow: 0 0 10px #50C878; /* Slight green glow */
+        }
+
+        /* Button styling */
+        button {
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    color: #50C878; /* Emerald green text */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #50C878; /* Emerald green outline */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #50C878; /* Fill with emerald green on hover */
+    color: black; /* Change text color to black */
+    box-shadow: 0 0 10px #50C878; /* Glow effect on hover */
+}
+
+
+        /* Popup styling (hidden by default) */
+       /* Popup styling (hidden by default) */
+/* Popup styling (hidden by default) */
+.popup {
+    visibility: hidden; /* Hidden but still in layout */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: rgba(29, 29, 29); /* Translucent dark background */
+    color: rgb(255, 255, 255); /* White text for readability */
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px #50C878;
+    opacity: 0; /* Start with full transparency */
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; /* Smooth fade-in effect */
+}
+
+/* When the popup is visible */
+.popup.show {
+    visibility: visible; /* Make it visible */
+    opacity: 1; /* Fully opaque */
+}
+
+
+
+        .popup h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .popup p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+     .popup button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #50C878; /* Emerald green text */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #50C878; /* Emerald green outline */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.popup button:hover {
+    background-color: #50C878; /* Fill with emerald green on hover */
+    color: black; /* Change text color to black */
+    box-shadow: 0 0 10px #50C878; /* Glow effect on hover */
+}
+
+
+        /* Emerald green light effect at the top */
+       /* Emerald green light effect with wavering animation */
+body::before {
+    content: '';
+    position: absolute;
+    top: -100px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px; 
+    height: 500px; 
+    background-color: #50C878; 
+    filter: blur(150px); 
+    z-index: -1; 
+    animation: waveringLight 3s infinite ease-in-out; /* Add animation */
+}
+
+/* Keyframes for the wavering effect */
+@keyframes waveringLight {
+    0%, 100% {
+        opacity: 0.6; /* Slightly dim */
+        filter: blur(140px); /* Less intense glow */
+    }
+    50% {
+        opacity: 1; /* Fully bright */
+        filter: blur(160px); /* More intense glow */
+    }
+}
+
+
+        /* Footer styling */
+.footer {
+    position: fixed; /* Sticks the footer to the bottom of the screen */
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Full width of the screen */
+    text-align: center; /* Center the text horizontally */
+    background-color: black; /* Background color (optional, matches body) */
+    color: white; /* White text color */
+    font-size: 1rem; /* Font size for readability */
+    padding: 10px 0; /* Padding for spacing */
+    z-index: 10; /* Ensures it stays above other elements if needed */
+}
+
+    </style>
+</head>
+<body>
+    <!-- Header with logo, title, and info button -->
+    <header>
+        <div class="header-left">
+            <img src="/static/ctube_logo.png" alt="CrunchTube Logo">
+            <h1>CrunchTube AI</h1>
+        
+        </div>
+        <a style="font-size: 1.5rem;color: white;text-decoration: none;"href="javascript:void(0);" class="info-link" onclick="showPopup()">Info</a>
+        
+    </header>
+
+    <!-- Centered search bar and button -->
+    <div class="center-content">
+        <h1 style="font-size:2.5rem;">Convert Educational YouTube Videos to Summaries</h1>
+        <form action="/analyze" method="POST">
+            <label for="youtube_link" style="display:none;">YouTube Link:</label> <!-- Hidden label for accessibility -->
+            
+            <!-- Longer paste link bar with no autofill -->
+            <input type="url" id="youtube_link" name="youtube_link" placeholder="Paste YouTube link here..." required autocomplete="off"><br><br>
+            
+            <button type="submit">Analyze Video</button>
+        </form>
+    </div>
+
+    <!-- Popup window -->
+    <div class="popup" id="infoPopup">
+        <h2>Info</h2>
+        <p>1. Paste the YouTube link of an educational video in the input bar.</p>
+        <p>2. Click "Analyze Video" to generate a summary of the video.</p>
+        <p>3. Ensure the video is publicly accessible on YouTube.</p>
+        <p>4. We get a summary by analyzing the video using the Gemini API.</p>
+        <p>5. All diagrams/visual elements in the video are extracted by their coordinates.</p>
+        <p>6. Questions and answers are generated based on the extracted images.</p>
+        <p>7. Get additional study links for further learning.</p>
+        <p>8. Displays a topic hardness vs time graph to identify which times have the hardest topics.</p>
+        <p>9. Download a cheat sheet generated by Python for quick reference.</p>
+        <p>10. See comment analysis of the video fetched using the YouTube API to identify any mistakes in the video.</p>
+        <p>11. Listen to an audio summary of the video with a button click.</p>
+        <p>12. View a flowchart of topics displayed using Mermaid.js for better visualization.</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+    
+    <script>
+// Function to show the popup with a fade-in effect
+function showPopup() {
+    const popup = document.getElementById('infoPopup');
+    popup.classList.add('show'); // Add the 'show' class to make it visible and apply fade-in
+}
+
+// Function to close the popup
+function closePopup() {
+    const popup = document.getElementById('infoPopup');
+    popup.classList.remove('show'); // Remove the 'show' class to hide it
+}
+
+    </script>
+
+<footer class="footer">
+    © 2025 CrunchTube AI. Made by <a style="color:#50C878;text-decoration: none;" href="https://www.linkedin.com/in/vizeno/" target="_blank"> Vishnu</a>
+</footer>
+
+</body>
+</html>
